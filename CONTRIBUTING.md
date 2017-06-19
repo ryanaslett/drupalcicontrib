@@ -1,4 +1,4 @@
-Codebase Architectural Overview:
+# Codebase Architectural Overview:
 
 The DrupalCI testrunner is the program responsible for actually running
 the tests on the drupalci testbots. DrupalCI testrunner is a symfony
@@ -28,7 +28,7 @@ The high level flow of execution for the testrunner is as follows:
     executing each in turn
 -   Preserving any artifacts and cleaning up after the build.
 
-Detailed floorplan of DrupalCI’s dungeon:
+# Detailed floorplan of DrupalCI’s dungeon:
 
 **BuildTask Plugins**
 
@@ -334,7 +334,7 @@ the local filesystem folders on the Host are located on the main “Build”
 object. This is subject to change: see
 [*https://www.drupal.org/node/2852371*](https://www.drupal.org/node/2852371)
 
-**Developing new features for DrupalCI**
+# Developing new features for DrupalCI
 
 All new plugins for extending DrupalCI first need to find the right
 location in the hierarchy that is somewhat descriptive of what its
@@ -444,7 +444,7 @@ access to those containers in order to execute commands:
 Both of those container commands return a CommandResult object which
 contain the output, error, and return signal of those commands.
 
-**Terminating the Build**
+## Terminating the Build
 
 When a Required command is executed on the host, it will automatically
 terminate the build if it fails. However, if a command is executed on a
@@ -462,7 +462,7 @@ if (\$patch-&gt;apply() !== 0) {
 
  }
 
-**Preserving Artifacts**
+## Preserving Artifacts
 
 During the execution of a plugin, oftentimes there may be data that
 would be valuable to inspect post build. Sometimes that’s the output of
@@ -494,7 +494,7 @@ to have it store the file in the artifacts directory.
 All artifacts will then end up in the workspace/artifacts directory,
 each namespaced by the plugin that executed them.
 
-**Plugin Configuration**
+## Plugin Configuration
 
 Plugins can be controlled with configuration values. Configuration
 values come from three sources: Defaults set on a plugin, Namespaced
@@ -634,7 +634,7 @@ getenv('DCI\_RTKeepResultsTable');
 
  }
 
-**Build Objects / Services**
+## Build Objects / Services
 
 DrupalCI utilizes several build objects that are not unique to plugins
 that provide data and functionality across the system to the plugins.
@@ -670,7 +670,7 @@ Artifact/Codebase/Environment/BuildOutcome
 
 How to create a service for a dependency in the container (Providers)
 
-**Special Environment Variables**
+## Special Environment Variables
 
 Most environment variables in drupalci are meant to provide a
 configuration value to a BuildStep plugin. However, there are four
@@ -706,12 +706,12 @@ additional environment variables that alter the behavior of drupalci.
     -   The build\_id of the running build (unique to each invocation of
         > drupalci) will be set to the jenkins BUILD\_TAG if it is set.\
 
-**Testing Plugins**
+## Testing Plugins
 
 There are two ways to write tests for plugins to prove that they work,
 and do not have unexpected side effects on the rest of the system
 
-**Functional tests**
+## Functional tests
 
 Functional tests allow us to run a complete end to end test of drupalci
 for a given scenario using all the required plugins to test that
@@ -782,7 +782,7 @@ to the test. We can achieve that a few ways.
         > See ./tests/DrupalCI/Tests/Application/PhpLint/\* for examples
         > of reusing a template while feeding different env values.
 
-**Unit Tests**
+## Unit Tests
 
 Faster tests can be written that exercise the logic \*internal\* to a
 plugin. This is where a Unit test is nice. Please look at
