@@ -416,9 +416,9 @@ types: required commands that, if they fail, should abort the build, and
 optional commands that if they fail, the build should continue
 processing.
 
-`// Execute a required command on the host. Failure aborts the build:
+`// Execute a required command on the host. Failure aborts the build:`
 
-$this->execRequiredCommand($cmd, 'Composer config failure');`
+`$this->execRequiredCommand($cmd, 'Composer config failure');`
 
 execRequiredCommand takes in the command, and a short message to display
 in the build outcome if the required command fails.
@@ -436,13 +436,13 @@ match the testing environment, and the commands need to run inside of
 the docker containers. Currently the ‘environment’ build object provides
 access to those containers in order to execute commands:
 
-`// Execute a command inside the php docker container
+`// Execute a command inside the php docker container`
 
-$result = $this->environment->executeCommands($commands);
+`$result = $this->environment->executeCommands($commands);`
 
-// Execute a command inside a particular docker container
+`// Execute a command inside a particular docker container`
 
-$result = $this->environment->executeCommands($commands,
+`$result = $this->environment->executeCommands($commands,
 $container[‘id’]);`
 
 Both of those container commands return a CommandResult object which
@@ -479,18 +479,18 @@ full path to that file, as well as the filename you wish to save it as
 composer/vendor/installed.json, and it might be better to rename the
 file to composer-installed.json, as an example).
 
-$this->saveHostArtifact($filepath, $savename);
+`$this->saveHostArtifact($filepath, $savename);`
 
 If you do not have a file, but have a string you wish to save, you can
 use saveStringArtifact to create the file for you.
 
-$this->saveStringArtifact($filename, $contents);
+`$this->saveStringArtifact($filename, $contents);`
 
 Finally, if the artifact exists only inside the docker container
 filesystems, you’ll want to use saveContainerArtifact with the full path
 to have it store the file in the artifacts directory.
 
-$this->saveContainerArtifact($filepath, $savename);
+`$this->saveContainerArtifact($filepath, $savename);`
 
 All artifacts will then end up in the workspace/artifacts directory,
 each namespaced by the plugin that executed them.
