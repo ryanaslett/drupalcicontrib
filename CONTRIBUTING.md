@@ -30,7 +30,7 @@ The high level flow of execution for the testrunner is as follows:
 
 # Detailed floorplan of DrupalCI’s dungeon:
 
-**BuildTask Plugins**
+## BuildTask Plugins
 
 The primary unit of execution in drupalci is a BuildTask Plugin
 (DrupalCI\\Plugin\\BuildTask). Each plugin is responsible for a defined
@@ -52,7 +52,7 @@ divided into three categories, Stages, Phases, and Steps.
     BuildPhases, and BuildSteps are all considered to be BuildTasks, and
     all of them Inherit from BuildTaskBase.
 
-**Build definition file (build.yml)**
+## Build definition file (build.yml)
 
 The build.yml file (/build\_definitions) is the definition file that
 contains the hierarchical list of plugin names and plugin configuration
@@ -62,14 +62,14 @@ level is always the ‘build’, the second level are the BuildStage
 plugins, the third level are the BuildPhase plugins, and the fourth
 level are the BuildStep plugins.
 
-**"Build" Objects**
+## "Build" Objects
 
 Plugins will need to interact with “Build Objects” - these are objects
 that are non-specific to any plugin, but rather components typically
 needed by all plugins, like the codebase, the ‘build’ itself, and the
 ‘environment’, and artifacts objects too.
 
-**Providers**
+## Providers
 
 DrupalCI relies on dependency injection and the pimple container to
 inject services into the build plugins. Yes, it does look an awfully lot
@@ -80,13 +80,13 @@ Docker service for communicating with the docker api, or a yaml parser
 service for munging yaml. There are also services for the build objects
 that we might also want to use, like the build, codebase, and database.
 
-**Console Command**
+## Console Command
 
 DrupalCI \*is\* a symfony console app, but it really only has one
 command, currently - “run”. Eventually it will have some additional
 local testing/configuration helpers but for now this is all it supports.
 
-**Composer Plugin**
+## Composer Plugin
 
 There is a small composer plugin that sets everything up for
 Codesniffing in development.
@@ -97,7 +97,7 @@ The flow through drupalci begins with the symfony console command ‘run’
 (DrupalCI\\Console\\Command\\Run) - which does two things - generates
 the build, and executes the build.
 
-**Generating the build**
+## Generating the build
 
 Generating the build is a matter of parsing the build.yml file and
 instantiating all the buildTask plugins such that they are all ready to
@@ -106,22 +106,22 @@ execute.
 \
 DrupalCI can gather a build.yml file in one of three ways:
 
-./drupalci run simpletest -&gt; if the argument after ‘run’ does not end
+`./drupalci run simpletest` -&gt; if the argument after ‘run’ does not end
 in .yml, drupalci will look in the /build\_definitions folder for a file
 of the same name, in this case it will use the ‘simpletest.yml’ build
 definition.
 
-./drupalci run ./build.yml -&gt; if the argument after ‘run’ is a path
+`./drupalci run ./build.yml` -&gt; if the argument after ‘run’ is a path
 to a .yml file, drupalci will use that file directly as its build
 definition.
 
-./drupalci run
-https://dispatcher.drupalci.org/job/default/101/artifact/jenkins-default-101/artifacts/build.jenkins-default-101.yml
+`./drupalci run
+https://dispatcher.drupalci.org/job/default/101/artifact/jenkins-default-101/artifacts/build.jenkins-default-101.yml`
 -&gt; if the argument after ‘run’ is a url to a .yml file, for example
 on the dispatcher, then drupalci will retrieve that file and use it for
 the build definition.
 
-**Build.yml details**
+## Build.yml details
 
 Build.yml files will contain a hierarchy of plugin names and
 configuration values for the plugin.
@@ -137,67 +137,68 @@ sometimes you want to execute the same plugin twice with different
 configuration, in this example “standard” and “js” on the simpletest
 plugin are labels to distinguish between the simpletest execution and
 the javascript functional tests (which also require 1 concurrency).
-
+```yml
 build:
 
- codebase:
+  codebase:
 
- assemble\_codebase:
+   assemble\_codebase:
 
- replicate:
+     replicate:
 
- checkout\_core:
+     checkout\_core:
 
- composer.core\_install:
+     composer.core\_install:
 
- composer\_contrib:
+     composer\_contrib:
 
- fetch:
+     fetch:
 
- patch:
+     patch:
 
- update\_dependencies:
+     update\_dependencies:
 
  environment:
 
- startcontainers:
+   startcontainers:
 
- runcontainers:
+     runcontainers:
 
- start\_phantomjs:
+     start\_phantomjs:
 
- create\_db:
+   create\_db:
 
- dbcreate:
+     dbcreate:
 
- assessment:
+   assessment:
 
- validate\_codebase:
+     validate\_codebase:
 
- phplint:
+       phplint:
 
- container\_composer:
+       container\_composer:
 
- phpcs:
+       phpcs:
 
- testing:
+     testing:
 
- simpletest.standard:
+       simpletest.standard:
 
- concurrency: 31
+         concurrency: 31
 
- simpletest.js:
+       simpletest.js:
 
- concurrency: 1
+         concurrency: 1
 
- types: 'PHPUnit-FunctionalJavascript'
+         types: 'PHPUnit-FunctionalJavascript'
+```
 
-**Preparing the buildtasks:**
+## Preparing the buildtasks:
 
 A BuildTask plugin goes through the following steps to become “ready” to
 execute:
 
-construct()-&gt;getDefaultConfiguration()-&gt;configure()-&gt;override\_config()-&gt;inject()
+`construct()-&gt;getDefaultConfiguration()-&gt;configure()-&gt;override\_config()-&gt;inject()`
 
 Plugins in drupalCI can have any number of configuration options
 available, but every plugin should be able to execute by default. This
@@ -213,13 +214,13 @@ environment variables and defaults. The final step is to inject any
 remaining service dependencies into the plugin so that it has whatever
 objects it needs to execute.
 
-**Executing the build**
+## Executing the build
 
 The build recurses through the hierarchy of plugins, and each plugin
 follows a flow of execution like so:
 
-start-&gt;setup-&gt;run-&gt;execute\_children-&gt;complete-&gt;teardown-&gt;finish-&gt;return
-to parent
+`start-&gt;setup-&gt;run-&gt;execute\_children-&gt;complete-&gt;teardown-&gt;finish-&gt;return
+to parent`
 
 The start/setup and teardown/finish steps are where all universal plugin
 activities happen (setting up directories, starting timers, outputting
@@ -236,7 +237,7 @@ Once a plugin’s children have all executed, a plugin then executes its
 ‘complete’ step. This is mostly useful for parent plugins but can
 sometimes be handy for BuildStep plugins too.
 
-**Filesystem and Environments **
+## Filesystem and Environments
 
 DrupalCI is designed to run most of its tasks either on the ‘Host’ -
 things like building the codebase, or validating the code, or it runs
@@ -257,11 +258,11 @@ the actual file/folder path is, or what the user/group permissions needs
 to be depending on whether you are in container context or in host
 context.
 
-**Host Filesystem:**
+## Host Filesystem:
 
 The host filesystem on the AMI as well as inside the vagrant box has the
 following key directories:
-
+```
 ├/opt/drupalci
 
  ├── composer-cache
@@ -269,10 +270,10 @@ following key directories:
  ├── drupal-checkout
 
  └── testrunner
-
+```
 /opt/drupalci contains a composer-cache, a copy of drupal core and a
 copy of the testrunner code from when the box was last rebuilt.
-
+```
 /var/lib/drupalci/
 
 ├── coredumps
@@ -294,18 +295,18 @@ copy of the testrunner code from when the box was last rebuilt.
  │ └── source
 
  └── local\_a89cb40d80eb97927a0b8927fc8db71b
-
-/var/lib/drupalci is a tmpfs mounted filesystem inside the box/on the
+```
+`/var/lib/drupalci` is a tmpfs mounted filesystem inside the box/on the
 AMI. It is 70% of allocated memory.
 
-/var/lib/drupalci/coredumps is where anything that segfaults inside the
+`/var/lib/drupalci/coredumps` is where anything that segfaults inside the
 docker containers will end up.
 
-/var/lib/drupalci/drupal-checkout is a copy of
-/opt/drupalci/drupal-checkout that gets put there \*after\* the tmpfs is
+`/var/lib/drupalci/drupal-checkout` is a copy of
+`/opt/drupalci/drupal-checkout` that gets put there \*after\* the tmpfs is
 created.
 
-/var/lib/drupalci/workspace is where any of the testruns are going to
+`/var/lib/drupalci/workspace` is where any of the testruns are going to
 end up.
 
 The folders under that dir will all start with
@@ -321,7 +322,7 @@ subfolders:
 -   /source - Source code Directory
 -   /database - Database File Directory
 
-**Containers and Environments - Inside vs outside.**
+## Containers and Environments - Inside vs outside.
 
 There are currently/typically two containers per build: a php
 “executable” container, and a “database” container. In addition to the
@@ -348,6 +349,7 @@ you’re not colliding with another plugin other than to check some build
 files or look at all the plugins. Your plugin class should extend
 BuildTaskBase, and implement BuildTaskInterface.
 
+```php
 /\*\*
 
  \* @PluginID("my\_plugin")
@@ -358,12 +360,13 @@ class MyPluginBuildStep extends BuildTaskBase implements
 BuildTaskInterface {
 
 }
-
+```
 Now your plugin can be added to build.yml files and it will work. But it
 won't do anything—yet.
 
 Implement the run() method of the BuildTaskInterface as the first thing.
 
+```php
 /\*\*
 
  \* @PluginID("my\_plugin")
@@ -401,8 +404,9 @@ maybe it does something with it.
 &lt;options=bold&gt;Really loudly&lt;/&gt;&lt;/info&gt;”);
 
 }
+```
 
-**Executing Commands**
+## Executing Commands
 
 Most plugins will want to run commands, both on the host and inside the
 testing environment.
@@ -412,9 +416,9 @@ types: required commands that, if they fail, should abort the build, and
 optional commands that if they fail, the build should continue
 processing.
 
-// Execute a required command on the host. Failure aborts the build:
+`// Execute a required command on the host. Failure aborts the build:
 
-\$this-&gt;execRequiredCommand(\$cmd, 'Composer config failure');
+\$this-&gt;execRequiredCommand(\$cmd, 'Composer config failure');`
 
 execRequiredCommand takes in the command, and a short message to display
 in the build outcome if the required command fails.
@@ -423,23 +427,23 @@ Example of a non-required command -always use the \$this-&gt;exec() form
 so that during testing you can skip actual execution of the exec, and
 see that it was attempted.
 
-\$cmd = "cd '\$directory' && git log --oneline -n 1 --decorate";
+`\$cmd = "cd '\$directory' && git log --oneline -n 1 --decorate";`
 
-\$this-&gt;exec(\$cmd, \$cmdoutput, \$result);
+`\$this-&gt;exec(\$cmd, \$cmdoutput, \$result);`
 
 Sometimes the environment that the command is executed within needs to
 match the testing environment, and the commands need to run inside of
 the docker containers. Currently the ‘environment’ build object provides
 access to those containers in order to execute commands:
 
-// Execute a command inside the php docker container
+`// Execute a command inside the php docker container
 
 \$result = \$this-&gt;environment-&gt;executeCommands(\$commands);
 
 // Execute a command inside a particular docker container
 
 \$result = \$this-&gt;environment-&gt;executeCommands(\$commands,
-\$container\[‘id’\]);
+\$container\[‘id’\]);`
 
 Both of those container commands return a CommandResult object which
 contain the output, error, and return signal of those commands.
@@ -455,12 +459,12 @@ build. This method takes in two arguments, a short message that ends up
 in the build outcome, and an extended message for the details of the
 failure: For example:
 
-if (\$patch-&gt;apply() !== 0) {
+`if (\$patch-&gt;apply() !== 0) {
 
  \$this-&gt;terminateBuild("Patch Failed to Apply", implode("\\n",
 \$patch-&gt;getPatchApplyResults()));
 
- }
+ }`
 
 ## Preserving Artifacts
 
