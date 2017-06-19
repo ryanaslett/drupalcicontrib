@@ -687,56 +687,55 @@ to the test. We can achieve that a few ways.
 -   Using ENVs
 
     -   You can pass in environment variables to a test. This simulates
-        > execution of one of the default builds in build_definitions
-        > directory, with configuration provided by the environment
-        > variables. You can set environment variables in the start of
-        > the test by specifying $dciConfig as an array of
-        > DCI_>variable> ‘s
-
-> protected $dciConfig = [
->  'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
->  'DCI_LocalBranch=8.3.x',
->  'DCI_LocalCommitHash=c187f1d',
->  'DCI_JobType=simpletest',
->  'DCI_TestItem=Url',
->  'DCI_PHPVersion=php-7.0-apache:production',
->  'DCI_DBType=mysql',
->  'DCI_DBVersion=5.5',
->  'DCI_CS_SkipCodesniff=TRUE',
-> ];
+        execution of one of the default builds in build_definitions
+        directory, with configuration provided by the environment
+        variables. You can set environment variables in the start of
+        the test by specifying $dciConfig as an array of
+        DCI_>variable> ‘s
+        ```php
+          protected $dciConfig = [
+           'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+           'DCI_LocalBranch=8.3.x',
+           'DCI_LocalCommitHash=c187f1d',
+           'DCI_JobType=simpletest',
+           'DCI_TestItem=Url',
+           'DCI_PHPVersion=php-7.0-apache:production',
+           'DCI_DBType=mysql',
+           'DCI_DBVersion=5.5',
+           'DCI_CS_SkipCodesniff=TRUE',
+           ];```
 
 -   Using .yml files
 
     -   Rather than passing in ENV’s, we can start with a fully formed
-        > build.yml file, and include it as an argument to the test.
-        > This has advantages, and disadvantages. The advantage is you
-        > can take a failed drupalci test that needs problems fixed and
-        > use it directly as a test case. The disadvantage is that the
-        > build.yml acts as a defacto API, so it could add a potential
-        > maintenance burden if keys and configurations change over
-        > time. Another advantage of build.yml files is if you are
-        > testing a plugin that is earlier in the build, like codebase
-        > or environment plugins, you can trim off unnecessary parts of
-        > the build (like assesment/environmnent phases)
-        >
-        > To use this method, include the following directive in your
-        > tests:
-        > `$app_tester->run([ 'command' => 'run',
-        >                    'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
-        > ], $options);`
-        >
-        > Where the definition file is relative to the root of the
-        > project.
+         build.yml file, and include it as an argument to the test.
+         This has advantages, and disadvantages. The advantage is you
+         can take a failed drupalci test that needs problems fixed and
+         use it directly as a test case. The disadvantage is that the
+         build.yml acts as a defacto API, so it could add a potential
+         maintenance burden if keys and configurations change over
+         time. Another advantage of build.yml files is if you are
+         testing a plugin that is earlier in the build, like codebase
+         or environment plugins, you can trim off unnecessary parts of
+         the build (like assesment/environmnent phases)
 
+         To use this method, include the following directive in your
+         tests:
+         `$app_tester->run([ 'command' => 'run',
+                            'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
+         ], $options);`
+
+         Where the definition file is relative to the root of the
+         project.
 -   Using .yml templates & ENV’s
 
     -   Sometimes a hybrid approach to testing works nicely, where you
-        > want a trimmed down or shortened version of the build.yml, but
-        > you want to run multiple tests. In this case you can add
-        > *both* environment variables and use a template to control
-        > the build test.
-        > See ./tests/DrupalCI/Tests/Application/PhpLint/* for examples
-        > of reusing a template while feeding different env values.
+         want a trimmed down or shortened version of the build.yml, but
+         you want to run multiple tests. In this case you can add
+         *both* environment variables and use a template to control
+         the build test.
+         See ./tests/DrupalCI/Tests/Application/PhpLint/* for examples
+         of reusing a template while feeding different env values.
 
 ## Unit Tests
 
