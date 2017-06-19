@@ -106,18 +106,18 @@ execute.
 
 DrupalCI can gather a build.yml file in one of three ways:
 
-`./drupalci run simpletest` -&gt; if the argument after ‘run’ does not end
+`./drupalci run simpletest` -> if the argument after ‘run’ does not end
 in .yml, drupalci will look in the /build_definitions folder for a file
 of the same name, in this case it will use the ‘simpletest.yml’ build
 definition.
 
-`./drupalci run ./build.yml` -&gt; if the argument after ‘run’ is a path
+`./drupalci run ./build.yml` -> if the argument after ‘run’ is a path
 to a .yml file, drupalci will use that file directly as its build
 definition.
 
 `./drupalci run
 https://dispatcher.drupalci.org/job/default/101/artifact/jenkins-default-101/artifacts/build.jenkins-default-101.yml`
--&gt; if the argument after ‘run’ is a url to a .yml file, for example
+-> if the argument after ‘run’ is a url to a .yml file, for example
 on the dispatcher, then drupalci will retrieve that file and use it for
 the build definition.
 
@@ -198,7 +198,7 @@ build:
 A BuildTask plugin goes through the following steps to become “ready” to
 execute:
 
-`construct()-&gt;getDefaultConfiguration()-&gt;configure()-&gt;override_config()-&gt;inject()`
+`construct()->getDefaultConfiguration()->configure()->override_config()->inject()`
 
 Plugins in drupalCI can have any number of configuration options
 available, but every plugin should be able to execute by default. This
@@ -208,7 +208,7 @@ second step, ‘configure()’ is going to look for environmental overrides
 to those default values (Set by various DCI_NAMESPACED environment
 variables) someday this will also include command line switches as
 another source of configuration. The third step is to ‘override_config’
--&gt; *any* values that were specified in the build.yml file can be
+-> *any* values that were specified in the build.yml file can be
 considered to be “hard coded” and will always take precedence over
 environment variables and defaults. The final step is to inject any
 remaining service dependencies into the plugin so that it has whatever
@@ -219,7 +219,7 @@ objects it needs to execute.
 The build recurses through the hierarchy of plugins, and each plugin
 follows a flow of execution like so:
 
-`start-&gt;setup-&gt;run-&gt;execute_children-&gt;complete-&gt;teardown-&gt;finish-&gt;return
+`start->setup->run->execute_children->complete->teardown->finish->return
 to parent`
 
 The start/setup and teardown/finish steps are where all universal plugin
@@ -390,18 +390,18 @@ object, and the container itself by default.
  // Here we are pretending that our Buildstep needs a codebase, like
 maybe it does something with it.
 
- $this-&gt;codebase = $container['codebase'];
+ $this->codebase = $container['codebase'];
 
  }
 
  public function run(){
 
- // $this-&gt;io is a dependency injected into the BuildTaskBase.
+ // $this->io is a dependency injected into the BuildTaskBase.
 
  // It’s what lets you echo stuff
 
- $this-&gt;io-&gt;writeln("&lt;info&gt;Doing a bunch of things
-&lt;options=bold&gt;Really loudly&lt;/&gt;&lt;/info&gt;”);
+ $this->io->writeln(">info>Doing a bunch of things
+>options=bold>Really loudly>/>>/info>”);
 
 }
 ```
@@ -418,18 +418,18 @@ processing.
 
 `// Execute a required command on the host. Failure aborts the build:
 
-$this-&gt;execRequiredCommand($cmd, 'Composer config failure');`
+$this->execRequiredCommand($cmd, 'Composer config failure');`
 
 execRequiredCommand takes in the command, and a short message to display
 in the build outcome if the required command fails.
 
-Example of a non-required command -always use the $this-&gt;exec() form
+Example of a non-required command -always use the $this->exec() form
 so that during testing you can skip actual execution of the exec, and
 see that it was attempted.
 
 `$cmd = "cd '$directory' && git log --oneline -n 1 --decorate";`
 
-`$this-&gt;exec($cmd, $cmdoutput, $result);`
+`$this->exec($cmd, $cmdoutput, $result);`
 
 Sometimes the environment that the command is executed within needs to
 match the testing environment, and the commands need to run inside of
@@ -438,11 +438,11 @@ access to those containers in order to execute commands:
 
 `// Execute a command inside the php docker container
 
-$result = $this-&gt;environment-&gt;executeCommands($commands);
+$result = $this->environment->executeCommands($commands);
 
 // Execute a command inside a particular docker container
 
-$result = $this-&gt;environment-&gt;executeCommands($commands,
+$result = $this->environment->executeCommands($commands,
 $container[‘id’]);`
 
 Both of those container commands return a CommandResult object which
@@ -459,11 +459,8 @@ build. This method takes in two arguments, a short message that ends up
 in the build outcome, and an extended message for the details of the
 failure: For example:
 
-`if ($patch-&gt;apply() !== 0) {
-
- $this-&gt;terminateBuild("Patch Failed to Apply", implode("n",
-$patch-&gt;getPatchApplyResults()));
-
+`if ($patch->apply() !== 0) {
+   $this->terminateBuild("Patch Failed to Apply", implode("n", $patch->getPatchApplyResults()));
  }`
 
 ## Preserving Artifacts
@@ -482,18 +479,18 @@ full path to that file, as well as the filename you wish to save it as
 composer/vendor/installed.json, and it might be better to rename the
 file to composer-installed.json, as an example).
 
-$this-&gt;saveHostArtifact($filepath, $savename);
+$this->saveHostArtifact($filepath, $savename);
 
 If you do not have a file, but have a string you wish to save, you can
 use saveStringArtifact to create the file for you.
 
-$this-&gt;saveStringArtifact($filename, $contents);
+$this->saveStringArtifact($filename, $contents);
 
 Finally, if the artifact exists only inside the docker container
 filesystems, you’ll want to use saveContainerArtifact with the full path
 to have it store the file in the artifacts directory.
 
-$this-&gt;saveContainerArtifact($filepath, $savename);
+$this->saveContainerArtifact($filepath, $savename);
 
 All artifacts will then end up in the workspace/artifacts directory,
 each namespaced by the plugin that executed them.
@@ -513,7 +510,7 @@ that value is not a good candidate for configuration.
 
 But, plugins need options, so a plugin needs to define a two things:
 
-getDefaultConfiguration();
+### `getDefaultConfiguration();`
 
 This method is intended to define the configuration keys that your
 plugin cares about. It really only keeps track of the top level keys, so
@@ -522,44 +519,31 @@ Any configurable item in your plugin *should* be defined in
 getDefaultConfiguration, even if it is blank, as this is what is used to
 export the build.yml file artifact on test generation.
 
- /**
-
+```php
+/**
  * @inheritDoc
-
  */
 
- public function getDefaultConfiguration() {
+public function getDefaultConfiguration() {
 
- return [
+  return [
+    'testgroups' => '--all',
+    'concurrency' => 4,
+    'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
+    'url' => 'http://localhost/checkout',
+    'color' => TRUE,
+    'die-on-fail' => FALSE,
+    'keep-results' => TRUE,
+    'keep-results-table' => FALSE,
+    'verbose' => FALSE,
+    // testing modules or themes?
+    'extension_test' => FALSE,
+  ];
 
- 'testgroups' =&gt; '--all',
+}
+```
 
- 'concurrency' =&gt; 4,
-
- 'types' =&gt;
-'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
-
- 'url' =&gt; 'http://localhost/checkout',
-
- 'color' =&gt; TRUE,
-
- 'die-on-fail' =&gt; FALSE,
-
- 'keep-results' =&gt; TRUE,
-
- 'keep-results-table' =&gt; FALSE,
-
- 'verbose' =&gt; FALSE,
-
- // testing modules or themes?
-
- 'extension_test' =&gt; FALSE,
-
- ];
-
- }
-
-configure();
+### `configure();`
 
 This method looks for defined environment variables and overrides the
 configuration variables based on those environment variables. Sometimes
@@ -569,72 +553,50 @@ to be parsed into individual values. In the following example,
 DCI_TestItem needs to be parsed to figure out what it is trying to
 accomplish.
 
+```php
  /**
-
- * @inheritDoc
-
- */
+  * @inheritDoc
+  */
 
  public function configure() {
 
- // Override any Environment Variables
+   // Override any Environment Variables
 
- if (FALSE !== getenv('DCI_Concurrency')) {
+   if (FALSE !== getenv('DCI_Concurrency')) {
+     $this->configuration['concurrency'] = getenv('DCI_Concurrency');
+   }
 
- $this-&gt;configuration['concurrency'] = getenv('DCI_Concurrency');
+   if (FALSE !== getenv('DCI_RTTypes')) {
+     $this->configuration['types'] = getenv('DCI_RTTypes');
+   }
 
- }
+   if (FALSE !== getenv('DCI_RTUrl')) {
+     $this->configuration['types'] = getenv('DCI_RTUrl');
+   }
 
- if (FALSE !== getenv('DCI_RTTypes')) {
+   if (FALSE !== getenv('DCI_RTColor')) {
+     $this->configuration['color'] = getenv('DCI_RTColor');
+   }
 
- $this-&gt;configuration['types'] = getenv('DCI_RTTypes');
+   if (FALSE !== getenv('DCI_TestItem')) {
+     $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
+   }
 
- }
+   if (FALSE !== getenv('DCI_RTDieOnFail')) {
+     $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
+   }
 
- if (FALSE !== getenv('DCI_RTUrl')) {
+   if (FALSE !== getenv('DCI_RTKeepResults')) {
+     $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
+   }
 
- $this-&gt;configuration['types'] = getenv('DCI_RTUrl');
+   if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
+     $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
+   }
 
- }
-
- if (FALSE !== getenv('DCI_RTColor')) {
-
- $this-&gt;configuration['color'] = getenv('DCI_RTColor');
-
- }
-
- if (FALSE !== getenv('DCI_TestItem')) {
-
- $this-&gt;configuration['testgroups'] =
-$this-&gt;parseTestItems(getenv('DCI_TestItem'));
-
- }
-
- if (FALSE !== getenv('DCI_RTDieOnFail')) {
-
- $this-&gt;configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
-
- }
-
- if (FALSE !== getenv('DCI_RTKeepResults')) {
-
- $this-&gt;configuration['keep-results'] =
-getenv('DCI_RTKeepResults');
-
- }
-
- if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
-
- $this-&gt;configuration['keep-results-table'] =
-getenv('DCI_RTKeepResultsTable');
-
- }
-
- if (FALSE !== getenv('DCI_RTVerbose')) {
-
- $this-&gt;configuration['verbose'] = getenv('DCI_RTVerbose');
-
- }
+   if (FALSE !== getenv('DCI_RTVerbose')) {
+     $this->configuration['verbose'] = getenv('DCI_RTVerbose');
+   }
 
  }
 
@@ -698,8 +660,8 @@ additional environment variables that alter the behavior of drupalci.
 
 -   **DCI_JobType**
 
-    -   When executing ./drupalci run &lt;jobtype&gt;, if this
-        > environment variable is set, then &lt;jobtype&gt; is set via
+    -   When executing ./drupalci run >jobtype>, if this
+        > environment variable is set, then >jobtype> is set via
         > the environment. The jobtype corresponds to the build.yml file
         > that is used as a job template in the /build_definitions
         > directory. This is mostly a function of Jenkins, but probably
@@ -729,28 +691,18 @@ to the test. We can achieve that a few ways.
         > directory, with configuration provided by the environment
         > variables. You can set environment variables in the start of
         > the test by specifying $dciConfig as an array of
-        > DCI_&lt;variable&gt; ‘s
+        > DCI_>variable> ‘s
 
 > protected $dciConfig = [
-
 >  'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-
 >  'DCI_LocalBranch=8.3.x',
-
 >  'DCI_LocalCommitHash=c187f1d',
-
 >  'DCI_JobType=simpletest',
-
 >  'DCI_TestItem=Url',
-
 >  'DCI_PHPVersion=php-7.0-apache:production',
-
 >  'DCI_DBType=mysql',
-
 >  'DCI_DBVersion=5.5',
-
 >  'DCI_CS_SkipCodesniff=TRUE',
-
 > ];
 
 -   Using .yml files
@@ -768,10 +720,10 @@ to the test. We can achieve that a few ways.
         > the build (like assesment/environmnent phases)
         >
         > To use this method, include the following directive in your
-        > tests: $app_tester-&gt;run([ 'command' =&gt; 'run',
-        > 'definition' =&gt;
-        > 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
-        > ], $options);
+        > tests:
+        > `$app_tester->run([ 'command' => 'run',
+        >                    'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
+        > ], $options);`
         >
         > Where the definition file is relative to the root of the
         > project.
