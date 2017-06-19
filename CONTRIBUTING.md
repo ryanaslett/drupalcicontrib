@@ -14,11 +14,11 @@ It has the following general responsibilities:
 -   Formatting and preserving build artifacts for later review
 
 The testrunner has two main external dependencies : the
-drupalci\_environments repository, which is where all of the dockerfiles
+drupalci_environments repository, which is where all of the dockerfiles
 for establishing environments are managed, and the drupal.org
 infrastructure repository, where the Host AMI and Vagrant box VM are
 built using packer. (Note, soon this will just be in the
-drupalci\_environments repo: https://www.drupal.org/node/2858975)
+drupalci_environments repo: https://www.drupal.org/node/2858975)
 
 The high level flow of execution for the testrunner is as follows:
 
@@ -33,7 +33,7 @@ The high level flow of execution for the testrunner is as follows:
 ## BuildTask Plugins
 
 The primary unit of execution in drupalci is a BuildTask Plugin
-(DrupalCI\\Plugin\\BuildTask). Each plugin is responsible for a defined
+(DrupalCIPluginBuildTask). Each plugin is responsible for a defined
 unit of work, like patching the codebase, or checking changed files for
 syntax errors, or executing a particular testrunner. BuildTasks can be
 divided into three categories, Stages, Phases, and Steps.
@@ -54,7 +54,7 @@ divided into three categories, Stages, Phases, and Steps.
 
 ## Build definition file (build.yml)
 
-The build.yml file (/build\_definitions) is the definition file that
+The build.yml file (/build_definitions) is the definition file that
 contains the hierarchical list of plugin names and plugin configuration
 options. Each key in the build.yml file either represents a BuildTask
 plugin name, or a configuration value for a BuildTask plugin. The root
@@ -82,7 +82,7 @@ that we might also want to use, like the build, codebase, and database.
 
 ## Console Command
 
-DrupalCI \*is\* a symfony console app, but it really only has one
+DrupalCI *is* a symfony console app, but it really only has one
 command, currently - “run”. Eventually it will have some additional
 local testing/configuration helpers but for now this is all it supports.
 
@@ -94,7 +94,7 @@ Codesniffing in development.
 DrupalCI Application Run lifecycle:
 
 The flow through drupalci begins with the symfony console command ‘run’
-(DrupalCI\\Console\\Command\\Run) - which does two things - generates
+(DrupalCIConsoleCommandRun) - which does two things - generates
 the build, and executes the build.
 
 ## Generating the build
@@ -103,11 +103,11 @@ Generating the build is a matter of parsing the build.yml file and
 instantiating all the buildTask plugins such that they are all ready to
 execute.
 
-\
+
 DrupalCI can gather a build.yml file in one of three ways:
 
 `./drupalci run simpletest` -&gt; if the argument after ‘run’ does not end
-in .yml, drupalci will look in the /build\_definitions folder for a file
+in .yml, drupalci will look in the /build_definitions folder for a file
 of the same name, in this case it will use the ‘simpletest.yml’ build
 definition.
 
@@ -142,21 +142,21 @@ build:
 
   codebase:
 
-   assemble\_codebase:
+   assemble_codebase:
 
      replicate:
 
-     checkout\_core:
+     checkout_core:
 
-     composer.core\_install:
+     composer.core_install:
 
-     composer\_contrib:
+     composer_contrib:
 
      fetch:
 
      patch:
 
-     update\_dependencies:
+     update_dependencies:
 
  environment:
 
@@ -164,19 +164,19 @@ build:
 
      runcontainers:
 
-     start\_phantomjs:
+     start_phantomjs:
 
-   create\_db:
+   create_db:
 
      dbcreate:
 
    assessment:
 
-     validate\_codebase:
+     validate_codebase:
 
        phplint:
 
-       container\_composer:
+       container_composer:
 
        phpcs:
 
@@ -198,17 +198,17 @@ build:
 A BuildTask plugin goes through the following steps to become “ready” to
 execute:
 
-`construct()-&gt;getDefaultConfiguration()-&gt;configure()-&gt;override\_config()-&gt;inject()`
+`construct()-&gt;getDefaultConfiguration()-&gt;configure()-&gt;override_config()-&gt;inject()`
 
 Plugins in drupalCI can have any number of configuration options
 available, but every plugin should be able to execute by default. This
 default configuration is set by ‘getDefaultConfiguration()’ on every
 plugin. This also acts as a manifest for what is configurable. The
 second step, ‘configure()’ is going to look for environmental overrides
-to those default values (Set by various DCI\_NAMESPACED environment
+to those default values (Set by various DCI_NAMESPACED environment
 variables) someday this will also include command line switches as
-another source of configuration. The third step is to ‘override\_config’
--&gt; \*any\* values that were specified in the build.yml file can be
+another source of configuration. The third step is to ‘override_config’
+-&gt; *any* values that were specified in the build.yml file can be
 considered to be “hard coded” and will always take precedence over
 environment variables and defaults. The final step is to inject any
 remaining service dependencies into the plugin so that it has whatever
@@ -219,7 +219,7 @@ objects it needs to execute.
 The build recurses through the hierarchy of plugins, and each plugin
 follows a flow of execution like so:
 
-`start-&gt;setup-&gt;run-&gt;execute\_children-&gt;complete-&gt;teardown-&gt;finish-&gt;return
+`start-&gt;setup-&gt;run-&gt;execute_children-&gt;complete-&gt;teardown-&gt;finish-&gt;return
 to parent`
 
 The start/setup and teardown/finish steps are where all universal plugin
@@ -284,7 +284,7 @@ copy of the testrunner code from when the box was last rebuilt.
 
 └── workspace
 
- ├── remote\_6d2e9dddf7d4dfefeb1f6252d0d86b59
+ ├── remote_6d2e9dddf7d4dfefeb1f6252d0d86b59
 
  │ ├── ancillary
 
@@ -294,7 +294,7 @@ copy of the testrunner code from when the box was last rebuilt.
 
  │ └── source
 
- └── local\_a89cb40d80eb97927a0b8927fc8db71b
+ └── local_a89cb40d80eb97927a0b8927fc8db71b
 ```
 `/var/lib/drupalci` is a tmpfs mounted filesystem inside the box/on the
 AMI. It is 70% of allocated memory.
@@ -303,15 +303,15 @@ AMI. It is 70% of allocated memory.
 docker containers will end up.
 
 `/var/lib/drupalci/drupal-checkout` is a copy of
-`/opt/drupalci/drupal-checkout` that gets put there \*after\* the tmpfs is
+`/opt/drupalci/drupal-checkout` that gets put there *after* the tmpfs is
 created.
 
 `/var/lib/drupalci/workspace` is where any of the testruns are going to
 end up.
 
 The folders under that dir will all start with
-remote\_/local\_/buildname\_ depending on whether or not its a url/local
-file/build\_definition default file. It may also end up as the Jenkins
+remote_/local_/buildname_ depending on whether or not its a url/local
+file/build_definition default file. It may also end up as the Jenkins
 Build Tag.
 
 Underneath each individual testrun’s directory are the following four
@@ -350,11 +350,11 @@ files or look at all the plugins. Your plugin class should extend
 BuildTaskBase, and implement BuildTaskInterface.
 
 ```php
-/\*\*
+/**
 
- \* @PluginID("my\_plugin")
+ * @PluginID("my_plugin")
 
- \*/
+ */
 
 class MyPluginBuildStep extends BuildTaskBase implements
 BuildTaskInterface {
@@ -367,40 +367,40 @@ won't do anything—yet.
 Implement the run() method of the BuildTaskInterface as the first thing.
 
 ```php
-/\*\*
+/**
 
- \* @PluginID("my\_plugin")
+ * @PluginID("my_plugin")
 
- \*/
+ */
 
 class MyPluginBuildStep extends BuildTaskBase implements
 BuildTaskInterface {
 
-// Implement the inject method, and \*call the parent\*
+// Implement the inject method, and *call the parent*
 
 // so that your buildstep plugin gets all of the dependencies
 
 // It needs. Parent on buildtask plugins get the build, the io output
 object, and the container itself by default.
 
- public function inject(Container \$container) {
+ public function inject(Container $container) {
 
- parent::inject(\$container);
+ parent::inject($container);
 
  // Here we are pretending that our Buildstep needs a codebase, like
 maybe it does something with it.
 
- \$this-&gt;codebase = \$container\['codebase'\];
+ $this-&gt;codebase = $container['codebase'];
 
  }
 
  public function run(){
 
- // \$this-&gt;io is a dependency injected into the BuildTaskBase.
+ // $this-&gt;io is a dependency injected into the BuildTaskBase.
 
  // It’s what lets you echo stuff
 
- \$this-&gt;io-&gt;writeln("&lt;info&gt;Doing a bunch of things
+ $this-&gt;io-&gt;writeln("&lt;info&gt;Doing a bunch of things
 &lt;options=bold&gt;Really loudly&lt;/&gt;&lt;/info&gt;”);
 
 }
@@ -418,18 +418,18 @@ processing.
 
 `// Execute a required command on the host. Failure aborts the build:
 
-\$this-&gt;execRequiredCommand(\$cmd, 'Composer config failure');`
+$this-&gt;execRequiredCommand($cmd, 'Composer config failure');`
 
 execRequiredCommand takes in the command, and a short message to display
 in the build outcome if the required command fails.
 
-Example of a non-required command -always use the \$this-&gt;exec() form
+Example of a non-required command -always use the $this-&gt;exec() form
 so that during testing you can skip actual execution of the exec, and
 see that it was attempted.
 
-`\$cmd = "cd '\$directory' && git log --oneline -n 1 --decorate";`
+`$cmd = "cd '$directory' && git log --oneline -n 1 --decorate";`
 
-`\$this-&gt;exec(\$cmd, \$cmdoutput, \$result);`
+`$this-&gt;exec($cmd, $cmdoutput, $result);`
 
 Sometimes the environment that the command is executed within needs to
 match the testing environment, and the commands need to run inside of
@@ -438,12 +438,12 @@ access to those containers in order to execute commands:
 
 `// Execute a command inside the php docker container
 
-\$result = \$this-&gt;environment-&gt;executeCommands(\$commands);
+$result = $this-&gt;environment-&gt;executeCommands($commands);
 
 // Execute a command inside a particular docker container
 
-\$result = \$this-&gt;environment-&gt;executeCommands(\$commands,
-\$container\[‘id’\]);`
+$result = $this-&gt;environment-&gt;executeCommands($commands,
+$container[‘id’]);`
 
 Both of those container commands return a CommandResult object which
 contain the output, error, and return signal of those commands.
@@ -459,10 +459,10 @@ build. This method takes in two arguments, a short message that ends up
 in the build outcome, and an extended message for the details of the
 failure: For example:
 
-`if (\$patch-&gt;apply() !== 0) {
+`if ($patch-&gt;apply() !== 0) {
 
- \$this-&gt;terminateBuild("Patch Failed to Apply", implode("\\n",
-\$patch-&gt;getPatchApplyResults()));
+ $this-&gt;terminateBuild("Patch Failed to Apply", implode("n",
+$patch-&gt;getPatchApplyResults()));
 
  }`
 
@@ -482,18 +482,18 @@ full path to that file, as well as the filename you wish to save it as
 composer/vendor/installed.json, and it might be better to rename the
 file to composer-installed.json, as an example).
 
-\$this-&gt;saveHostArtifact(\$filepath, \$savename);
+$this-&gt;saveHostArtifact($filepath, $savename);
 
 If you do not have a file, but have a string you wish to save, you can
 use saveStringArtifact to create the file for you.
 
-\$this-&gt;saveStringArtifact(\$filename, \$contents);
+$this-&gt;saveStringArtifact($filename, $contents);
 
 Finally, if the artifact exists only inside the docker container
 filesystems, you’ll want to use saveContainerArtifact with the full path
 to have it store the file in the artifacts directory.
 
-\$this-&gt;saveContainerArtifact(\$filepath, \$savename);
+$this-&gt;saveContainerArtifact($filepath, $savename);
 
 All artifacts will then end up in the workspace/artifacts directory,
 each namespaced by the plugin that executed them.
@@ -502,7 +502,7 @@ each namespaced by the plugin that executed them.
 
 Plugins can be controlled with configuration values. Configuration
 values come from three sources: Defaults set on a plugin, Namespaced
-DCI\_ENVIRONMENT variables, and configuration values set in the
+DCI_ENVIRONMENT variables, and configuration values set in the
 build.yml. A fourth source is planned (command line switches).
 
 As a general rule, the configuration philosophy of DrupalCI is to avoid
@@ -518,19 +518,19 @@ getDefaultConfiguration();
 This method is intended to define the configuration keys that your
 plugin cares about. It really only keeps track of the top level keys, so
 it doesn’t concern itself with array contents or nested data structures.
-Any configurable item in your plugin \*should\* be defined in
+Any configurable item in your plugin *should* be defined in
 getDefaultConfiguration, even if it is blank, as this is what is used to
 export the build.yml file artifact on test generation.
 
- /\*\*
+ /**
 
- \* @inheritDoc
+ * @inheritDoc
 
- \*/
+ */
 
  public function getDefaultConfiguration() {
 
- return \[
+ return [
 
  'testgroups' =&gt; '--all',
 
@@ -553,9 +553,9 @@ export the build.yml file artifact on test generation.
 
  // testing modules or themes?
 
- 'extension\_test' =&gt; FALSE,
+ 'extension_test' =&gt; FALSE,
 
- \];
+ ];
 
  }
 
@@ -566,73 +566,73 @@ configuration variables based on those environment variables. Sometimes
 there isn't a 1:1 mapping of environment variables to config options, or
 the environment variable contains a serialized format of data that needs
 to be parsed into individual values. In the following example,
-DCI\_TestItem needs to be parsed to figure out what it is trying to
+DCI_TestItem needs to be parsed to figure out what it is trying to
 accomplish.
 
- /\*\*
+ /**
 
- \* @inheritDoc
+ * @inheritDoc
 
- \*/
+ */
 
  public function configure() {
 
  // Override any Environment Variables
 
- if (FALSE !== getenv('DCI\_Concurrency')) {
+ if (FALSE !== getenv('DCI_Concurrency')) {
 
- \$this-&gt;configuration\['concurrency'\] = getenv('DCI\_Concurrency');
-
- }
-
- if (FALSE !== getenv('DCI\_RTTypes')) {
-
- \$this-&gt;configuration\['types'\] = getenv('DCI\_RTTypes');
+ $this-&gt;configuration['concurrency'] = getenv('DCI_Concurrency');
 
  }
 
- if (FALSE !== getenv('DCI\_RTUrl')) {
+ if (FALSE !== getenv('DCI_RTTypes')) {
 
- \$this-&gt;configuration\['types'\] = getenv('DCI\_RTUrl');
-
- }
-
- if (FALSE !== getenv('DCI\_RTColor')) {
-
- \$this-&gt;configuration\['color'\] = getenv('DCI\_RTColor');
+ $this-&gt;configuration['types'] = getenv('DCI_RTTypes');
 
  }
 
- if (FALSE !== getenv('DCI\_TestItem')) {
+ if (FALSE !== getenv('DCI_RTUrl')) {
 
- \$this-&gt;configuration\['testgroups'\] =
-\$this-&gt;parseTestItems(getenv('DCI\_TestItem'));
-
- }
-
- if (FALSE !== getenv('DCI\_RTDieOnFail')) {
-
- \$this-&gt;configuration\['die-on-fail'\] = getenv('DCI\_RTDieOnFail');
+ $this-&gt;configuration['types'] = getenv('DCI_RTUrl');
 
  }
 
- if (FALSE !== getenv('DCI\_RTKeepResults')) {
+ if (FALSE !== getenv('DCI_RTColor')) {
 
- \$this-&gt;configuration\['keep-results'\] =
-getenv('DCI\_RTKeepResults');
-
- }
-
- if (FALSE !== getenv('DCI\_RTKeepResultsTable')) {
-
- \$this-&gt;configuration\['keep-results-table'\] =
-getenv('DCI\_RTKeepResultsTable');
+ $this-&gt;configuration['color'] = getenv('DCI_RTColor');
 
  }
 
- if (FALSE !== getenv('DCI\_RTVerbose')) {
+ if (FALSE !== getenv('DCI_TestItem')) {
 
- \$this-&gt;configuration\['verbose'\] = getenv('DCI\_RTVerbose');
+ $this-&gt;configuration['testgroups'] =
+$this-&gt;parseTestItems(getenv('DCI_TestItem'));
+
+ }
+
+ if (FALSE !== getenv('DCI_RTDieOnFail')) {
+
+ $this-&gt;configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
+
+ }
+
+ if (FALSE !== getenv('DCI_RTKeepResults')) {
+
+ $this-&gt;configuration['keep-results'] =
+getenv('DCI_RTKeepResults');
+
+ }
+
+ if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
+
+ $this-&gt;configuration['keep-results-table'] =
+getenv('DCI_RTKeepResultsTable');
+
+ }
+
+ if (FALSE !== getenv('DCI_RTVerbose')) {
+
+ $this-&gt;configuration['verbose'] = getenv('DCI_RTVerbose');
 
  }
 
@@ -644,7 +644,7 @@ DrupalCI utilizes several build objects that are not unique to plugins
 that provide data and functionality across the system to the plugins.
 Each ‘service’ exists in the dependency injection container and is
 accessable via the container. Each service is created by a
-serviceprovider object ./src/DrupalCI/Providers/\* is where these
+serviceprovider object ./src/DrupalCI/Providers/* is where these
 objects live, with DrupalCIServiceProvider being the main one where
 others need to be registered.
 
@@ -680,35 +680,35 @@ Most environment variables in drupalci are meant to provide a
 configuration value to a BuildStep plugin. However, there are four
 additional environment variables that alter the behavior of drupalci.
 
--   **DCI\_Debug**
+-   **DCI_Debug**
 
     -   When drupalci runs, normally it will clean up all working files,
         > the codebase, and core files (for the simpletest plugin). If
-        > the DCI\_Debug flag is set, it will not attempt to clean up
+        > the DCI_Debug flag is set, it will not attempt to clean up
         > those directories.
 
--   **DCI\_WorkingDir**
+-   **DCI_WorkingDir**
 
     -   When drupalci starts, normally it will be putting the build file
         > into /var/lib/drupalci (php is configured to have
-        > sys\_get\_temp\_dir return /var/lib/drupalci in the vagrantbox
-        > as well as the testbot ami). Setting DCI\_WorkingDir allows a
+        > sys_get_temp_dir return /var/lib/drupalci in the vagrantbox
+        > as well as the testbot ami). Setting DCI_WorkingDir allows a
         > user running locally to specify a different directory (perhaps
         > one with more space).
 
--   **DCI\_JobType**
+-   **DCI_JobType**
 
     -   When executing ./drupalci run &lt;jobtype&gt;, if this
         > environment variable is set, then &lt;jobtype&gt; is set via
         > the environment. The jobtype corresponds to the build.yml file
-        > that is used as a job template in the /build\_definitions
+        > that is used as a job template in the /build_definitions
         > directory. This is mostly a function of Jenkins, but probably
         > may be deprecated in the future in favor of direct execution.
 
--   **BUILD\_TAG**
+-   **BUILD_TAG**
 
-    -   The build\_id of the running build (unique to each invocation of
-        > drupalci) will be set to the jenkins BUILD\_TAG if it is set.\
+    -   The build_id of the running build (unique to each invocation of
+        > drupalci) will be set to the jenkins BUILD_TAG if it is set.
 
 ## Testing Plugins
 
@@ -725,33 +725,33 @@ to the test. We can achieve that a few ways.
 -   Using ENVs
 
     -   You can pass in environment variables to a test. This simulates
-        > execution of one of the default builds in build\_definitions
+        > execution of one of the default builds in build_definitions
         > directory, with configuration provided by the environment
         > variables. You can set environment variables in the start of
-        > the test by specifying \$dciConfig as an array of
-        > DCI\_&lt;variable&gt; ‘s
+        > the test by specifying $dciConfig as an array of
+        > DCI_&lt;variable&gt; ‘s
 
-> protected \$dciConfig = \[
+> protected $dciConfig = [
 
->  'DCI\_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+>  'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
 
->  'DCI\_LocalBranch=8.3.x',
+>  'DCI_LocalBranch=8.3.x',
 
->  'DCI\_LocalCommitHash=c187f1d',
+>  'DCI_LocalCommitHash=c187f1d',
 
->  'DCI\_JobType=simpletest',
+>  'DCI_JobType=simpletest',
 
->  'DCI\_TestItem=Url',
+>  'DCI_TestItem=Url',
 
->  'DCI\_PHPVersion=php-7.0-apache:production',
+>  'DCI_PHPVersion=php-7.0-apache:production',
 
->  'DCI\_DBType=mysql',
+>  'DCI_DBType=mysql',
 
->  'DCI\_DBVersion=5.5',
+>  'DCI_DBVersion=5.5',
 
->  'DCI\_CS\_SkipCodesniff=TRUE',
+>  'DCI_CS_SkipCodesniff=TRUE',
 
-> \];
+> ];
 
 -   Using .yml files
 
@@ -765,14 +765,14 @@ to the test. We can achieve that a few ways.
         > time. Another advantage of build.yml files is if you are
         > testing a plugin that is earlier in the build, like codebase
         > or environment plugins, you can trim off unnecessary parts of
-        > the build (like assesment/environmnent phases)\
-        > \
+        > the build (like assesment/environmnent phases)
+        >
         > To use this method, include the following directive in your
-        > tests: \$app\_tester-&gt;run(\[ 'command' =&gt; 'run',
+        > tests: $app_tester-&gt;run([ 'command' =&gt; 'run',
         > 'definition' =&gt;
         > 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
-        > \], \$options);\
-        > \
+        > ], $options);
+        >
         > Where the definition file is relative to the root of the
         > project.
 
@@ -781,15 +781,15 @@ to the test. We can achieve that a few ways.
     -   Sometimes a hybrid approach to testing works nicely, where you
         > want a trimmed down or shortened version of the build.yml, but
         > you want to run multiple tests. In this case you can add
-        > \*both\* environment variables and use a template to control
-        > the build test.\
-        > See ./tests/DrupalCI/Tests/Application/PhpLint/\* for examples
+        > *both* environment variables and use a template to control
+        > the build test.
+        > See ./tests/DrupalCI/Tests/Application/PhpLint/* for examples
         > of reusing a template while feeding different env values.
 
 ## Unit Tests
 
-Faster tests can be written that exercise the logic \*internal\* to a
+Faster tests can be written that exercise the logic *internal* to a
 plugin. This is where a Unit test is nice. Please look at
-./tests/DrupalCI/Tests/Plugin/\* for examples of exercising an
+./tests/DrupalCI/Tests/Plugin/* for examples of exercising an
 individual plugin test. And if you have tips or tricks, submit a patch
 to these docs to help improve them.
