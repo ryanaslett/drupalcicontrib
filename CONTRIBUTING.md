@@ -1,4 +1,4 @@
-# Codebase Architectural Overview:
+# # Codebase Architectural Overview
 
 The DrupalCI testrunner is the program responsible for actually running
 the tests on the drupalci testbots. DrupalCI testrunner is a symfony
